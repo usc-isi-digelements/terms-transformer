@@ -1,0 +1,263 @@
+<!--
+Copyright 2017 Next Century Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../lodash-import/lodash.html">
+
+<!--
+A Polymer Element that is used to convert a list of selected ids from the `<feature-aggregation>`
+component to an object structure to use with `<selected-facets-display>`, and vice versa.
+
+### Example
+```html
+    <terms-transformer
+      category="[[title]]"
+      list="{{selectedList}}"
+      object="{{searchParamSubset}}">
+    </terms-transformer>
+```
+
+@demo demo/index.html
+-->
+
+<dom-module id="terms-transformer">
+  <script>
+    Polymer({
+      is: 'terms-transformer',
+
+      properties: {
+        /**
+         * (Required)
+         *
+         * The category for the object.
+         *
+         * @type {String}
+         */
+        category: {
+          type: String
+        },
+
+        /**
+         * (Optional|Output)
+         *
+         * The list of selected IDs as strings.
+         *
+         * @type {Array}
+         */
+        list: {
+          notify: true,
+          type: Array
+        },
+
+        /**
+         * (Optional|Output)
+         *
+         * The object that maps each selected ID to an object with properties:
+         * {String} category, {Boolean} enabled, {String} key, {String} text
+         *
+         * To customize, see objectStructureFunction.
+         *
+         * @type {Object}
+         */
+        object: {
+          notify: true,
+          type: Object
+        },
+
+        /**
+         * (Optional)
+         *
+         * A function to transform the ID into the text for the object.
+         *
+         * @type {Function}
+         */
+        textFunction: {
+          type: Object
+        },
+
+        /**
+         * (Optional)
+         *
+         * Name for the category property in the object.
+         *
+         * @type {String}
+         * @default 'category'
+         */
+        categoryProperty: {
+          type: String,
+          value: 'category'
+        },
+
+        /**
+         * (Optional)
+         *
+         * Name for the enabled property in the object.
+         *
+         * @type {String}
+         * @default 'enabled'
+         */
+        enabledProperty: {
+          type: String,
+          value: 'enabled'
+        },
+
+        /**
+         * (Optional)
+         *
+         * Name for the id property in the object.
+         *
+         * @type {String}
+         * @default 'key'
+         */
+        idProperty: {
+          type: String,
+          value: 'key'
+        },
+
+        /**
+         * (Optional)
+         *
+         * Name for the text property in the object.
+         *
+         * @type {String}
+         * @default 'text'
+         */
+        textProperty: {
+          type: String,
+          value: 'text'
+        },
+
+        /**
+         * (Optional)
+         *
+         * Function to use for the structure of the object property. If function is left as
+         * default, function will take three parameters (enabled, id, text) and structure
+         * new objects as follows:
+         *
+         * {<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;key: id,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;text: text,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;enabled: enabled,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;category: this.category<br/>
+         * }
+         *
+         * If this is changed, note that the following properties are required:
+         *
+         * - categoryProperty (default: 'category')<br/>
+         * - enabledProperty (default: 'enabled')<br/>
+         * - idProperty (default: 'key')<br/>
+         * - textProperty (default: 'text')
+         *
+         * @type {Object}
+         * @default {{Function(enabled, id, text)}}
+         */
+        objectStructureFunction: {
+          type: Object,
+          value: function() {
+            return function(enabled, id, text) {
+              var object = {};
+              object[this.categoryProperty] = this.category;
+              object[this.enabledProperty] = enabled;
+              object[this.idProperty] = id;
+              object[this.textProperty] = text;
+              return object;
+            };
+          }
+        },
+      },
+
+      observers: [
+        '_updateList(object.*)',
+        '_updateObject(list)'
+      ],
+
+      /**
+       * Creates and returns an object that maps each ID in the given list to an object with properties:
+       * {String} category, {Boolean} enabled, {String} key, {String} text
+       *
+       * @param {Array} list
+       * @return {Object}
+       */
+      createObjectFromList: function(list) {
+        var self = this;
+        var object = {};
+        list.forEach(function(id) {
+          object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
+        });
+        return object;
+      },
+
+      /**
+       * Updates the global object property using the data in the global list property.
+       *
+       * @private
+       */
+      _updateObject: function() {
+        var self = this;
+        var notifyIds = {};
+
+        _.keys(this.object).forEach(function(id) {
+          var oldEnabled = self.object[id][self.enabledProperty];
+          var newEnabled = (self.list.indexOf(id) >= 0);
+          if(oldEnabled !== newEnabled) {
+            // Must recreate the object here rather than just setting the enabled property in order for notifyPath to work correctly.
+            self.object[id] = self.objectStructureFunction(newEnabled, self.object[id][self.idProperty], self.object[id][self.textProperty]);
+            notifyIds[id] = true;
+          }
+        });
+
+        (this.list || []).forEach(function(id) {
+          if(!self.object[id]) {
+            self.object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
+            notifyIds[id] = true;
+          }
+        });
+
+        // Must notify AFTER all updates.
+        _.keys(notifyIds).forEach(function(id) {
+          // Must notifyPath on * because it will not handle an id with a period correctly.
+          self.notifyPath('object.*', self.object[id]);
+        });
+      },
+
+      /**
+       * Updates the global list property using the data in the global object property.
+       *
+       * @private
+       */
+      _updateList: function() {
+        var self = this;
+        var list = [];
+
+        _.keys(this.object).forEach(function(id) {
+          var index = self.list.indexOf(id);
+          if(self.object[id][self.enabledProperty] && index < 0) {
+            list.push(id);
+          }
+        });
+
+        (this.list || []).forEach(function(id) {
+          if(self.object[id] && self.object[id][self.enabledProperty]) {
+            list.push(id);
+          }
+        });
+
+        // Must set the list rather than adding to it or removing from it in order for observers to work correctly.
+        this.set('list', list);
+      }
+    });
+  </script>
+</dom-module>

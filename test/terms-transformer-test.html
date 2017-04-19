@@ -1,0 +1,266 @@
+<!--
+Copyright 2017 Next Century Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <link rel="import" href="../terms-transformer.html">
+  </head>
+
+  <body>
+    <test-fixture id="terms-transformer-fixture">
+      <template>
+        <terms-transformer>
+        </terms-transformer>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('terms-transformer tests', function() {
+        var element;
+
+        setup(function() {
+          element = fixture('terms-transformer-fixture');
+          element.category = 'Category';
+          element.object = {};
+          element.list = [];
+        });
+
+        test('properties with default values are initialized correctly', function() {
+          assert.equal(element.categoryProperty, 'category');
+          assert.equal(element.idProperty, 'key');
+          assert.equal(element.textProperty, 'text');
+          assert.equal(element.enabledProperty, 'enabled');
+          assert.isFunction(element.objectStructureFunction);
+        });
+
+        test('objectStructureFunction returns correct object based on inputs', function() {
+          assert.deepEqual(element.objectStructureFunction(false, 'someId', 'someText'), {
+            category: 'Category',
+            enabled: false,
+            key: 'someId',
+            text: 'someText'
+          });
+        });
+
+        test('customized objectStructureFunction returns correct object based on inputs', function() {
+          element.idProperty = 'id';
+          element.objectStructureFunction = function(enabled, id, text) {
+            var object = {};
+            object[this.idProperty] = id;
+            object[this.enabledProperty] = enabled;
+            object[this.textProperty] = text;
+            object.someOtherProperty = 'something';
+            return object;
+          };
+
+          assert.deepEqual(element.objectStructureFunction(false, 'someId', 'someText'), {
+            enabled: false,
+            id: 'someId',
+            text: 'someText',
+            someOtherProperty: 'something'
+          });
+        });
+
+        test('if object properties are customized, objectStructureFunction still returns correct object', function() {
+          element.categoryProperty = 'title';
+          element.textProperty = 'words';
+          element.idProperty = 'id';
+          element.enabledProperty = 'isTrue';
+
+          assert.deepEqual(element.objectStructureFunction(false, 'someId', 'someText'), {
+            title: 'Category',
+            isTrue: false,
+            id: 'someId',
+            words: 'someText'
+          });
+        });
+
+        test('createObjectFromList returns an empty object if list is empty', function() {
+          assert.deepEqual(element.createObjectFromList([]), {});
+        });
+
+        test('createObjectFromList returns correct object with keys from list', function() {
+          assert.deepEqual(element.createObjectFromList(['key1', 'key2']), {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'key1'
+            },
+            key2: {
+              category: 'Category',
+              enabled: true,
+              key: 'key2',
+              text: 'key2'
+            }
+          });
+        });
+
+        test('createObjectFromList applies text function correctly if specified', function() {
+          element.textFunction = function(id) {
+            return 'text for ' + id;
+          };
+          assert.deepEqual(element.createObjectFromList(['key1', 'key2']), {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'text for key1'
+            },
+            key2: {
+              category: 'Category',
+              enabled: true,
+              key: 'key2',
+              text: 'text for key2'
+            }
+          });
+        });
+
+        test('_updateObject() works as expected', function() {
+          element.list = ['key1', 'key2'];
+          element._updateObject();
+
+          console.log(JSON.stringify(element.object));
+
+          assert.deepEqual(element.object, {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'key1'
+            },
+            key2: {
+              category: 'Category',
+              enabled: true,
+              key: 'key2',
+              text: 'key2'
+            }
+          });
+        });
+
+        test('_updateObject() as an observer function works as expected', function(done) {
+          element.set('list', ['key3']);
+          assert.deepEqual(element.list, ['key3']);
+
+          flush(function() {
+            assert.deepEqual(element.object, {
+              key3: {
+                category: 'Category',
+                enabled: true,
+                key: 'key3',
+                text: 'key3'
+              }
+            });
+            done();
+          });
+        });
+
+        test('_updateObject() works as expected with custom property names specified', function() {
+          element.enabledProperty = 'isTrue';
+          element.idProperty = 'id';
+          element.textProperty = 'words';
+
+          element.list = ['key1', 'key2'];
+          element._updateObject();
+
+          assert.deepEqual(element.object, {
+            key1: {
+              category: 'Category',
+              isTrue: true,
+              id: 'key1',
+              words: 'key1'
+            },
+            key2: {
+              category: 'Category',
+              isTrue: true,
+              id: 'key2',
+              words: 'key2'
+            }
+          });
+        });
+
+        test('_updateList() works as expected', function() {
+          element.object = {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'text for key1'
+            },
+            key2: {
+              category: 'Category',
+              enabled: false,
+              key: 'key2',
+              text: 'text for key2'
+            }
+          };
+
+          element._updateList();
+          assert.deepEqual(element.list, ['key1']);
+        });
+
+        test('_updateList() as observer function works as expected', function(done) {
+          element.object = {
+            key4: {
+              category: 'Category',
+              enabled: true,
+              key: 'key4',
+              text: 'key4'
+            }
+          };
+          element.notifyPath('object.*', {
+            key4: {
+              category: 'Category',
+              enabled: true,
+              key: 'key4',
+              text: 'key4'
+            }
+          });
+
+          flush(function() {
+            assert.deepEqual(element.list, ['key4']);
+            done();
+          });
+        });
+
+        test('_updateList() works as expected with custom property names specified', function() {
+          element.enabledProperty = 'isTrue';
+          element.object = {
+            key1: {
+              category: 'Category',
+              isTrue: true,
+              key: 'key1',
+              text: 'text for key1'
+            },
+            key2: {
+              category: 'Category',
+              isTrue: false,
+              key: 'key2',
+              text: 'text for key2'
+            }
+          };
+
+          element._updateList();
+          assert.deepEqual(element.list, ['key1']);
+        });
+      });
+    </script>
+  </body>
+</html>
