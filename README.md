@@ -24,3 +24,10 @@ Tests are run using [web-component-tester](https://github.com/Polymer/web-compon
 
     npm install -g web-component-tester
     wct
+
+### Demonstration & Documentation
+
+Demonstration and documentation are viewed using [polyserve](https://github.com/PolymerLabs/polyserve):
+
+    npm install -g polyserve
+    polyserve
