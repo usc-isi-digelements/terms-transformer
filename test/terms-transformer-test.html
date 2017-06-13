@@ -47,6 +47,7 @@ limitations under the License.
           assert.equal(element.idProperty, 'key');
           assert.equal(element.textProperty, 'text');
           assert.equal(element.enabledProperty, 'enabled');
+          assert.isUndefined(element.objectProperty);
           assert.isFunction(element.objectStructureFunction);
         });
 
@@ -133,68 +134,147 @@ limitations under the License.
           });
         });
 
-        test('_updateObject() works as expected', function() {
-          element.list = ['key1', 'key2'];
-          element._updateObject();
-
-          assert.deepEqual(element.object, {
-            key1: {
-              category: 'Category',
-              enabled: true,
-              key: 'key1',
-              text: 'key1'
-            },
-            key2: {
-              category: 'Category',
-              enabled: true,
-              key: 'key2',
-              text: 'key2'
-            }
-          });
-        });
-
-        test('_updateObject() as an observer function works as expected', function(done) {
-          element.set('list', ['key3']);
-          assert.deepEqual(element.list, ['key3']);
-
-          flush(function() {
+        test('_updateObject() works as expected', function(done) {
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
             assert.deepEqual(element.object, {
-              key3: {
+              key1: {
                 category: 'Category',
                 enabled: true,
-                key: 'key3',
-                text: 'key3'
+                key: 'key1',
+                text: 'key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: true,
+                key: 'key2',
+                text: 'key2'
               }
             });
-            done();
-          });
-        });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 'key2',
+                text: 'key2'
+              });
+              done();
+            }
+          };
 
-        test('_updateObject() works as expected with custom property names specified', function() {
-          element.enabledProperty = 'isTrue';
-          element.idProperty = 'id';
-          element.textProperty = 'words';
+          element.listen(element, 'object-changed', 'onObjectChange');
 
           element.list = ['key1', 'key2'];
-          element._updateObject();
-
-          assert.deepEqual(element.object, {
-            key1: {
-              category: 'Category',
-              isTrue: true,
-              id: 'key1',
-              words: 'key1'
-            },
-            key2: {
-              category: 'Category',
-              isTrue: true,
-              id: 'key2',
-              words: 'key2'
-            }
-          });
         });
 
-        test('_updateList() works as expected', function() {
+        test('_updateObject() works as expected with custom property names specified', function(done) {
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              key1: {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key1',
+                testText: 'key1'
+              },
+              key2: {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key2',
+                testText: 'key2'
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key1',
+                testText: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key2',
+                testText: 'key2'
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.categoryProperty = 'testCategory';
+          element.enabledProperty = 'testEnabled';
+          element.idProperty = 'testId';
+          element.textProperty = 'testText';
+
+          element.list = ['key1', 'key2'];
+        });
+
+        test('_updateObject() does disable keys in the object', function(done) {
+          element.list = ['key1', 'key2'];
+
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              key1: {
+                category: 'Category',
+                enabled: false,
+                key: 'key1',
+                text: 'key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: false,
+                key: 'key2',
+                text: 'key2'
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: false,
+                key: 'key1',
+                text: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: false,
+                key: 'key2',
+                text: 'key2'
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.list = [];
+        });
+
+        test('_updateList() works as expected', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
           element.object = {
             key1: {
               category: 'Category',
@@ -209,54 +289,423 @@ limitations under the License.
               text: 'text for key2'
             }
           };
-
-          element._updateList();
-          assert.deepEqual(element.list, ['key1']);
         });
 
-        test('_updateList() as observer function works as expected', function(done) {
+        test('_updateList() works as expected with custom property names specified', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.categoryProperty = 'testCategory';
+          element.enabledProperty = 'testEnabled';
+          element.idProperty = 'testId';
+          element.textProperty = 'testText';
+
           element.object = {
-            key4: {
-              category: 'Category',
-              enabled: true,
-              key: 'key4',
-              text: 'key4'
+            key1: {
+              testCategory: 'Category',
+              testEnabled: true,
+              testId: 'key1',
+              testText: 'text for key1'
+            },
+            key2: {
+              testCategory: 'Category',
+              testEnabled: false,
+              testId: 'key2',
+              testText: 'text for key2'
             }
           };
-          element.notifyPath('object.*', {
-            key4: {
-              category: 'Category',
-              enabled: true,
-              key: 'key4',
-              text: 'key4'
-            }
-          });
-
-          flush(function() {
-            assert.deepEqual(element.list, ['key4']);
-            done();
-          });
         });
 
-        test('_updateList() works as expected with custom property names specified', function() {
-          element.enabledProperty = 'isTrue';
+        test('_updateList() does remove keys from the list', function(done) {
           element.object = {
             key1: {
               category: 'Category',
-              isTrue: true,
+              enabled: true,
               key: 'key1',
               text: 'text for key1'
             },
             key2: {
               category: 'Category',
-              isTrue: false,
+              enabled: true,
               key: 'key2',
               text: 'text for key2'
             }
           };
 
-          element._updateList();
-          assert.deepEqual(element.list, ['key1']);
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.object = {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'text for key1'
+            },
+            key2: {
+              category: 'Category',
+              enabled: false,
+              key: 'key2',
+              text: 'text for key2'
+            }
+          };
+        });
+
+        test('_updateList() does update if object.key1 is set', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.set('object.key1', {
+            category: 'Category',
+            enabled: true,
+            key: 'key1',
+            text: 'text for key1'
+          });
+        });
+      });
+
+      suite('terms-transformer with objectProperty tests', function() {
+        var element;
+
+        setup(function() {
+          element = fixture('terms-transformer-fixture');
+          element.category = 'Category';
+          element.objectProperty = 'myProperty';
+          element.object = {};
+          element.list = [];
+        });
+
+        test('properties with default values are initialized correctly', function() {
+          assert.equal(element.categoryProperty, 'category');
+          assert.equal(element.idProperty, 'key');
+          assert.equal(element.textProperty, 'text');
+          assert.equal(element.enabledProperty, 'enabled');
+          assert.equal(element.objectProperty, 'myProperty');
+          assert.isFunction(element.objectStructureFunction);
+        });
+
+        test('objectStructureFunction returns correct object based on inputs', function() {
+          assert.deepEqual(element.objectStructureFunction(false, 'someId', 'someText'), {
+            category: 'Category',
+            enabled: false,
+            key: 'someId',
+            text: 'someText'
+          });
+        });
+
+        test('createObjectFromList returns correct object with keys from list', function() {
+          assert.deepEqual(element.createObjectFromList(['key1', 'key2']), {
+            myProperty: {
+              key1: {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: true,
+                key: 'key2',
+                text: 'key2'
+              }
+            }
+          });
+        });
+
+        test('_updateObject() works as expected', function(done) {
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              myProperty: {
+                key1: {
+                  category: 'Category',
+                  enabled: true,
+                  key: 'key1',
+                  text: 'key1'
+                },
+                key2: {
+                  category: 'Category',
+                  enabled: true,
+                  key: 'key2',
+                  text: 'key2'
+                }
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 'key2',
+                text: 'key2'
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.list = ['key1', 'key2'];
+        });
+
+        test('_updateObject() works as expected with custom property names specified', function(done) {
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              myProperty: {
+                key1: {
+                  testCategory: 'Category',
+                  testEnabled: true,
+                  testId: 'key1',
+                  testText: 'key1'
+                },
+                key2: {
+                  testCategory: 'Category',
+                  testEnabled: true,
+                  testId: 'key2',
+                  testText: 'key2'
+                }
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key1',
+                testText: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key2',
+                testText: 'key2'
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.categoryProperty = 'testCategory';
+          element.enabledProperty = 'testEnabled';
+          element.idProperty = 'testId';
+          element.textProperty = 'testText';
+
+          element.list = ['key1', 'key2'];
+        });
+
+        test('_updateObject() does disable keys in the object', function(done) {
+          element.list = ['key1', 'key2'];
+
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              myProperty: {
+                key1: {
+                  category: 'Category',
+                  enabled: false,
+                  key: 'key1',
+                  text: 'key1'
+                },
+                key2: {
+                  category: 'Category',
+                  enabled: false,
+                  key: 'key2',
+                  text: 'key2'
+                }
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: false,
+                key: 'key1',
+                text: 'key1'
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: false,
+                key: 'key2',
+                text: 'key2'
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.list = [];
+        });
+
+        test('_updateList() works as expected', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.object = {
+            myProperty: {
+              key1: {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'text for key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: false,
+                key: 'key2',
+                text: 'text for key2'
+              }
+            }
+          };
+        });
+
+        test('_updateList() works as expected with custom property names specified', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.categoryProperty = 'testCategory';
+          element.enabledProperty = 'testEnabled';
+          element.idProperty = 'testId';
+          element.textProperty = 'testText';
+
+          element.object = {
+            myProperty: {
+              key1: {
+                testCategory: 'Category',
+                testEnabled: true,
+                testId: 'key1',
+                testText: 'text for key1'
+              },
+              key2: {
+                testCategory: 'Category',
+                testEnabled: false,
+                testId: 'key2',
+                testText: 'text for key2'
+              }
+            }
+          };
+        });
+
+        test('_updateList() does remove keys from the list', function(done) {
+          element.object = {
+            myProperty: {
+              key1: {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'text for key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: true,
+                key: 'key2',
+                text: 'text for key2'
+              }
+            }
+          };
+
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.object = {
+            myProperty: {
+              key1: {
+                category: 'Category',
+                enabled: true,
+                key: 'key1',
+                text: 'text for key1'
+              },
+              key2: {
+                category: 'Category',
+                enabled: false,
+                key: 'key2',
+                text: 'text for key2'
+              }
+            }
+          };
+        });
+
+        test('_updateList() does update if object[objectProperty] is set', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.set('object.myProperty', {
+            key1: {
+              category: 'Category',
+              enabled: true,
+              key: 'key1',
+              text: 'text for key1'
+            }
+          });
+        });
+
+        test('_updateList() does update if object[objectProperty].key1 is set', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, ['key1']);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.set('object.myProperty.key1', {
+            category: 'Category',
+            enabled: true,
+            key: 'key1',
+            text: 'text for key1'
+          });
+        });
+
+        test('_updateList() does update if object[objectProperty] is reset', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, []);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.set('object.otherProperty', {});
         });
       });
     </script>

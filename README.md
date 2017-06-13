@@ -3,12 +3,61 @@
 A Polymer Element that is used to convert a list of selected ids from the `<feature-aggregation>`
 component to an object structure to use with `<selected-facets-display>`, and vice versa.
 
+### Example without object property
+```js
+var selectedList = ['one', 'two'];
+var selectedObject = {
+  one: {
+    category: 'Category',
+    enabled: true,
+    id: 'one',
+    text: 'One'
+  },
+  two: {
+    category: 'Category',
+    enabled: true,
+    id: 'two',
+    text: 'Two'
+  }
+};
+```
+
 ```html
-    <terms-transformer
-      category="[[title]]"
-      list="{{selectedList}}"
-      object="{{searchParamSubset}}">
-    </terms-transformer>
+<terms-transformer
+  category="Category"
+  list="{{selectedList}}"
+  object="{{selectedObject}}">
+</terms-transformer>
+```
+
+### Example with object property
+```js
+var selectedList = ['one', 'two'];
+var selectedObject = {
+  property: {
+    one: {
+      category: 'Category',
+      enabled: true,
+      id: 'one',
+      text: 'One'
+    },
+    two: {
+      category: 'Category',
+      enabled: true,
+      id: 'two',
+      text: 'Two'
+    }
+  }
+};
+```
+
+```html
+<terms-transformer
+  category="Category"
+  object-property="property"
+  list="{{selectedList}}"
+  object="{{selectedObject}}">
+</terms-transformer>
 ```
 
 ### Dependencies

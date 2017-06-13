@@ -21,13 +21,61 @@ limitations under the License.
 A Polymer Element that is used to convert a list of selected ids from the `<feature-aggregation>`
 component to an object structure to use with `<selected-facets-display>`, and vice versa.
 
-### Example
+### Example without object property
+```js
+var selectedList = ['one', 'two'];
+var selectedObject = {
+  one: {
+    category: 'Category',
+    enabled: true,
+    id: 'one',
+    text: 'One'
+  },
+  two: {
+    category: 'Category',
+    enabled: true,
+    id: 'two',
+    text: 'Two'
+  }
+};
+```
+
 ```html
-    <terms-transformer
-      category="[[title]]"
-      list="{{selectedList}}"
-      object="{{searchParamSubset}}">
-    </terms-transformer>
+<terms-transformer
+  category="Category"
+  list="{{selectedList}}"
+  object="{{selectedObject}}">
+</terms-transformer>
+```
+
+### Example with object property
+```js
+var selectedList = ['one', 'two'];
+var selectedObject = {
+  property: {
+    one: {
+      category: 'Category',
+      enabled: true,
+      id: 'one',
+      text: 'One'
+    },
+    two: {
+      category: 'Category',
+      enabled: true,
+      id: 'two',
+      text: 'Two'
+    }
+  }
+};
+```
+
+```html
+<terms-transformer
+  category="Category"
+  object-property="property"
+  list="{{selectedList}}"
+  object="{{selectedObject}}">
+</terms-transformer>
 ```
 
 @demo demo/index.html
@@ -170,6 +218,17 @@ component to an object structure to use with `<selected-facets-display>`, and vi
         /**
          * (Optional)
          *
+         * The property inside the `object` to change.  If undefined, will use the `object` itself.
+         *
+         * @type {String}
+         */
+        objectProperty: {
+          type: String
+        },
+
+        /**
+         * (Optional)
+         *
          * A function to transform the ID into the text for the object.
          *
          * @type {Function}
@@ -193,11 +252,16 @@ component to an object structure to use with `<selected-facets-display>`, and vi
        */
       createObjectFromList: function(list) {
         var self = this;
-        var object = {};
+        var objectToReturn = {};
+        var object = objectToReturn;
+        if(this.objectProperty) {
+          objectToReturn[this.objectProperty] = {};
+          object = objectToReturn[this.objectProperty];
+        }
         list.forEach(function(id) {
           object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
         });
-        return object;
+        return objectToReturn;
       },
 
       /**
@@ -209,19 +273,28 @@ component to an object structure to use with `<selected-facets-display>`, and vi
         var self = this;
         var notifyIds = {};
 
-        _.keys(this.object).forEach(function(id) {
-          var oldEnabled = self.object[id][self.enabledProperty];
+        var object = this.object;
+        if(this.objectProperty) {
+          if(!this.object[this.objectProperty]) {
+            this.object[this.objectProperty] = {};
+          }
+          object = this.object[this.objectProperty];
+        }
+        var objectPath = this.objectProperty ? ['object', this.objectProperty, '*'] : ['object', '*'];
+
+        _.keys(object).forEach(function(id) {
+          var oldEnabled = object[id][self.enabledProperty];
           var newEnabled = (self.list.indexOf(id) >= 0);
           if(oldEnabled !== newEnabled) {
             // Must recreate the object here rather than just setting the enabled property in order for notifyPath to work correctly.
-            self.object[id] = self.objectStructureFunction(newEnabled, self.object[id][self.idProperty], self.object[id][self.textProperty]);
+            object[id] = self.objectStructureFunction(newEnabled, object[id][self.idProperty], object[id][self.textProperty]);
             notifyIds[id] = true;
           }
         });
 
         (this.list || []).forEach(function(id) {
-          if(!self.object[id]) {
-            self.object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
+          if(!object[id]) {
+            object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
             notifyIds[id] = true;
           }
         });
@@ -229,7 +302,7 @@ component to an object structure to use with `<selected-facets-display>`, and vi
         // Must notify AFTER all updates.
         _.keys(notifyIds).forEach(function(id) {
           // Must notifyPath on * because it will not handle an id with a period correctly.
-          self.notifyPath('object.*', self.object[id]);
+          self.notifyPath(objectPath, object[id]);
         });
       },
 
@@ -242,15 +315,23 @@ component to an object structure to use with `<selected-facets-display>`, and vi
         var self = this;
         var list = [];
 
-        _.keys(this.object).forEach(function(id) {
+        var object = this.object;
+        if(this.objectProperty) {
+          if(!this.object[this.objectProperty]) {
+            this.object[this.objectProperty] = {};
+          }
+          object = this.object[this.objectProperty];
+        }
+
+        _.keys(object).forEach(function(id) {
           var index = self.list.indexOf(id);
-          if(self.object[id][self.enabledProperty] && index < 0) {
+          if(object[id][self.enabledProperty] && index < 0) {
             list.push(id);
           }
         });
 
         (this.list || []).forEach(function(id) {
-          if(self.object[id] && self.object[id][self.enabledProperty]) {
+          if(object[id] && object[id][self.enabledProperty]) {
             list.push(id);
           }
         });
