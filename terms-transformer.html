@@ -273,19 +273,16 @@ var selectedObject = {
         var self = this;
         var notifyIds = {};
 
-        var object = this.object;
+        var object = this.object || {};
         if(this.objectProperty) {
-          if(!this.object[this.objectProperty]) {
-            this.object[this.objectProperty] = {};
-          }
-          object = this.object[this.objectProperty];
+          object = object[this.objectProperty] || {};
         }
         var objectPath = this.objectProperty ? ['object', this.objectProperty, '*'] : ['object', '*'];
 
         _.keys(object).forEach(function(id) {
           var oldEnabled = object[id][self.enabledProperty];
           var newEnabled = (self.list.indexOf(id) >= 0);
-          if(oldEnabled !== newEnabled) {
+          if(!!oldEnabled !== !!newEnabled) {
             // Must recreate the object here rather than just setting the enabled property in order for notifyPath to work correctly.
             object[id] = self.objectStructureFunction(newEnabled, object[id][self.idProperty], object[id][self.textProperty]);
             notifyIds[id] = true;
@@ -300,6 +297,17 @@ var selectedObject = {
         });
 
         // Must notify AFTER all updates.
+        if(!this.object) {
+          var parentObject = object;
+          if(this.objectProperty) {
+            parentObject = {};
+            parentObject[this.objectProperty] = object;
+          }
+          this.set('object', parentObject);
+        }
+        if(this.objectProperty && !this.object[this.objectProperty]) {
+          this.set(['object', this.objectProperty], object[this.objectProperty]);
+        }
         _.keys(notifyIds).forEach(function(id) {
           // Must notifyPath on * because it will not handle an id with a period correctly.
           self.notifyPath(objectPath, object[id]);
@@ -324,7 +332,7 @@ var selectedObject = {
         }
 
         _.keys(object).forEach(function(id) {
-          var index = self.list.indexOf(id);
+          var index = self.list ? self.list.indexOf(id) : -1;
           if(object[id][self.enabledProperty] && index < 0) {
             list.push(id);
           }

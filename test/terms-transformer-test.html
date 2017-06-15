@@ -708,6 +708,77 @@ limitations under the License.
           element.set('object.otherProperty', {});
         });
       });
+
+      suite('terms-transformer tests with undefined properties', function() {
+        var element;
+
+        setup(function() {
+          element = fixture('terms-transformer-fixture');
+          element.category = 'Category';
+          element.objectProperty = 'myProperty';
+        });
+
+        test('list is set to an empty list if an empty object is set', function() {
+          element.object = {};
+          expect(element.list).to.deep.equal([]);
+        });
+
+        test('list is set to an empty list if an empty object with an empty object at objectProperty is set', function() {
+          element.object = {
+            myProperty: {}
+          };
+          expect(element.list).to.deep.equal([]);
+        });
+
+        test('list is set to a non-empty list if a non-empty object is set', function() {
+          element.object = {
+            myProperty: {
+              key: {
+                category: 'Category',
+                enabled: true,
+                key: 'key',
+                text: 'text'
+              }
+            }
+          };
+          expect(element.list).to.deep.equal(['key']);
+        });
+
+        test('list is set to an empty list if a non-empty object is set but not at objectProperty', function() {
+          element.object = {
+            myOtherDifferentProperty: {
+              key: {
+                category: 'Category',
+                enabled: true,
+                key: 'key',
+                text: 'text'
+              }
+            }
+          };
+          expect(element.list).to.deep.equal([]);
+        });
+
+        test('object is set to a empty object if an empty list is set', function() {
+          element.list = [];
+          expect(element.object).to.deep.equal({
+            myProperty: {}
+          });
+        });
+
+        test('object is set to a non-empty object if a non-empty list is set', function() {
+          element.set('list', ['key']);
+          expect(element.object).to.deep.equal({
+            myProperty: {
+              key: {
+                category: 'Category',
+                enabled: true,
+                key: 'key',
+                text: 'key'
+              }
+            }
+          });
+        });
+      });
     </script>
   </body>
 </html>
