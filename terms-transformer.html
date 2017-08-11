@@ -29,12 +29,14 @@ var selectedObject = {
     category: 'Category',
     enabled: true,
     id: 'one',
+    search: 'optional',
     text: 'One'
   },
   two: {
     category: 'Category',
     enabled: true,
     id: 'two',
+    search: 'required',
     text: 'Two'
   }
 };
@@ -57,12 +59,14 @@ var selectedObject = {
       category: 'Category',
       enabled: true,
       id: 'one',
+      search: 'optional',
       text: 'One'
     },
     two: {
       category: 'Category',
       enabled: true,
       id: 'two',
+      search: 'required',
       text: 'Two'
     }
   }
@@ -129,6 +133,19 @@ var selectedObject = {
         /**
          * (Optional)
          *
+         * Name for the search property in the object.
+         *
+         * @type {String}
+         * @default 'search'
+         */
+        searchProperty: {
+          type: String,
+          value: 'search'
+        },
+
+        /**
+         * (Optional)
+         *
          * Name for the text property in the object.
          *
          * @type {String}
@@ -143,13 +160,14 @@ var selectedObject = {
          * (Optional)
          *
          * Function to use for the structure of the object property. If function is left as
-         * default, function will take three parameters (enabled, id, text) and structure
+         * default, function will take the parameters (enabled, id, search, text) and structure
          * new objects as follows:
          *
          * {<br/>
-         *   &nbsp;&nbsp;&nbsp;&nbsp;key: id,<br/>
-         *   &nbsp;&nbsp;&nbsp;&nbsp;text: text,<br/>
          *   &nbsp;&nbsp;&nbsp;&nbsp;enabled: enabled,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;key: id,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;search: search,<br/>
+         *   &nbsp;&nbsp;&nbsp;&nbsp;text: text,<br/>
          *   &nbsp;&nbsp;&nbsp;&nbsp;category: this.category<br/>
          * }
          *
@@ -158,19 +176,21 @@ var selectedObject = {
          * - categoryProperty (default: 'category')<br/>
          * - enabledProperty (default: 'enabled')<br/>
          * - idProperty (default: 'key')<br/>
+         * - searchProperty (default: 'search')<br/>
          * - textProperty (default: 'text')
          *
          * @type {Object}
-         * @default {{Function(enabled, id, text)}}
+         * @default {{Function(enabled, id, search, text)}}
          */
         objectStructureFunction: {
           type: Object,
           value: function() {
-            return function(enabled, id, text) {
+            return function(enabled, id, search, text) {
               var object = {};
               object[this.categoryProperty] = this.category;
               object[this.enabledProperty] = enabled;
               object[this.idProperty] = id;
+              object[this.searchProperty] = search;
               object[this.textProperty] = text;
               return object;
             };
@@ -203,10 +223,7 @@ var selectedObject = {
         /**
          * (Optional|Output)
          *
-         * The object that maps each selected ID to an object with properties:
-         * {String} category, {Boolean} enabled, {String} key, {String} text
-         *
-         * To customize, see objectStructureFunction.
+         * The object that maps each selected ID to an object using the objectStructureFunction.
          *
          * @type {Object}
          */
@@ -244,8 +261,7 @@ var selectedObject = {
       ],
 
       /**
-       * Creates and returns an object that maps each ID in the given list to an object with properties:
-       * {String} category, {Boolean} enabled, {String} key, {String} text
+       * Creates and returns an object that maps each ID in the given list to an object using the objectStructureFunction.
        *
        * @param {Array} list
        * @return {Object}
@@ -259,7 +275,7 @@ var selectedObject = {
           object = objectToReturn[this.objectProperty];
         }
         list.forEach(function(id) {
-          object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
+          object[id] = self.objectStructureFunction(true, id, 'required', self.textFunction ? self.textFunction(id) : id);
         });
         return objectToReturn;
       },
@@ -284,14 +300,14 @@ var selectedObject = {
           var newEnabled = (self.list.indexOf(id) >= 0);
           if(!!oldEnabled !== !!newEnabled) {
             // Must recreate the object here rather than just setting the enabled property in order for notifyPath to work correctly.
-            object[id] = self.objectStructureFunction(newEnabled, object[id][self.idProperty], object[id][self.textProperty]);
+            object[id] = self.objectStructureFunction(newEnabled, object[id][self.idProperty], object[id][self.searchProperty], object[id][self.textProperty]);
             notifyIds[id] = true;
           }
         });
 
         (this.list || []).forEach(function(id) {
           if(!object[id]) {
-            object[id] = self.objectStructureFunction(true, id, self.textFunction ? self.textFunction(id) : id);
+            object[id] = self.objectStructureFunction(true, id, 'required', self.textFunction ? self.textFunction(id) : id);
             notifyIds[id] = true;
           }
         });
