@@ -50,6 +50,7 @@ limitations under the License.
           assert.equal(element.textProperty, 'text');
           assert.isUndefined(element.objectProperty);
           assert.isFunction(element.objectStructureFunction);
+          assert.equal(element.searchDefaultValue, 'required');
         });
 
         test('objectStructureFunction returns correct object based on inputs', function() {
@@ -122,7 +123,8 @@ limitations under the License.
           });
         });
 
-        test('createObjectFromList applies text function correctly if specified', function() {
+        test('createObjectFromList applies searchDefaultValue and textFunction correctly if specified', function() {
+          element.searchDefaultValue = 'optional';
           element.textFunction = function(id) {
             return 'text for ' + id;
           };
@@ -131,14 +133,14 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'optional',
               text: 'text for key1'
             },
             key2: {
               category: 'Category',
               enabled: true,
               key: 'key2',
-              search: 'required',
+              search: 'optional',
               text: 'text for key2'
             }
           });
@@ -199,14 +201,14 @@ limitations under the License.
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key1',
-                testSearch: 'required',
+                testSearch: 'optional',
                 testText: 'key1'
               },
               key2: {
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key2',
-                testSearch: 'required',
+                testSearch: 'optional',
                 testText: 'key2'
               }
             });
@@ -215,7 +217,7 @@ limitations under the License.
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key1',
-                testSearch: 'required',
+                testSearch: 'optional',
                 testText: 'key1'
               });
             }
@@ -224,7 +226,7 @@ limitations under the License.
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key2',
-                testSearch: 'required',
+                testSearch: 'optional',
                 testText: 'key2'
               });
               done();
@@ -238,6 +240,7 @@ limitations under the License.
           element.idProperty = 'testId';
           element.searchProperty = 'testSearch';
           element.textProperty = 'testText';
+          element.searchDefaultValue = 'optional';
 
           element.list = ['key1', 'key2'];
         });
@@ -329,20 +332,21 @@ limitations under the License.
           element.idProperty = 'testId';
           element.searchProperty = 'testSearch';
           element.textProperty = 'testText';
+          element.searchDefaultValue = 'optional';
 
           element.object = {
             key1: {
               testCategory: 'Category',
               testEnabled: true,
               testId: 'key1',
-              testSearch: 'required',
+              testSearch: 'optional',
               testText: 'text for key1'
             },
             key2: {
               testCategory: 'Category',
               testEnabled: false,
               testId: 'key2',
-              testSearch: 'required',
+              testSearch: 'optional',
               testText: 'text for key2'
             }
           };

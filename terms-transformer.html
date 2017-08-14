@@ -246,6 +246,19 @@ var selectedObject = {
         /**
          * (Optional)
          *
+         * The default value for the `search` property in the object corresponding to `searchProperty`.
+         *
+         * @type {String}
+         * @default 'required'
+         */
+        searchDefaultValue: {
+          type: String,
+          value: 'required'
+        },
+
+        /**
+         * (Optional)
+         *
          * A function to transform the ID into the text for the object.
          *
          * @type {Function}
@@ -275,7 +288,7 @@ var selectedObject = {
           object = objectToReturn[this.objectProperty];
         }
         list.forEach(function(id) {
-          object[id] = self.objectStructureFunction(true, id, 'required', self.textFunction ? self.textFunction(id) : id);
+          object[id] = self.objectStructureFunction(true, id, self.searchDefaultValue, self.textFunction ? self.textFunction(id) : id);
         });
         return objectToReturn;
       },
@@ -307,7 +320,7 @@ var selectedObject = {
 
         (this.list || []).forEach(function(id) {
           if(!object[id]) {
-            object[id] = self.objectStructureFunction(true, id, 'required', self.textFunction ? self.textFunction(id) : id);
+            object[id] = self.objectStructureFunction(true, id, self.searchDefaultValue, self.textFunction ? self.textFunction(id) : id);
             notifyIds[id] = true;
           }
         });
