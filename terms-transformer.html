@@ -352,8 +352,11 @@ var selectedObject = {
         var self = this;
         var list = [];
 
-        var object = this.object;
+        var object = this.object || {};
         if(this.objectProperty) {
+          if(!this.object) {
+            this.object = {};
+          }
           if(!this.object[this.objectProperty]) {
             this.object[this.objectProperty] = {};
           }

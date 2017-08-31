@@ -15,40 +15,126 @@ limitations under the License.
 -->
 
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>terms-transformer Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="../terms-transformer.html">
-  </head>
-  <body unresolved>
-    <template is="dom-bind" id="demo">
-      <p>terms-transformer example:</p>
-      <p>Properties:</p>
-      <ul>
-        <li>Category: 'City'</li>
-        <li>List: ['New York City', 'Los Angeles'];</li>
-        <li>Object: <span>[[stringifySearchParam(searchParamSubset.*)]]</span></li>
-      </ul>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>terms-transformer Demo</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <link rel="import" href="../terms-transformer.html">
+</head>
 
-      <terms-transformer
-        category="City"
-        list="{{selectedList}}"
-        object="{{searchParamSubset}}">
-      </terms-transformer>
-    </template>
+<body unresolved>
+  <dom-bind id="demo">
     <script>
       (function(document) {
-        var demo = document.querySelector('#demo');
+        var demo = document.querySelector('dom-bind');
 
-        demo.selectedList = ['New York City', 'Los Angeles'];
-        demo.searchParamSubset = {};
+        demo.list1 = ['A', 'B'];
+        demo.object1 = {};
+        demo.list2 = [];
+        demo.object2 = {
+          A: {
+            category: 'Test Category',
+            enabled: true,
+            key: 'A',
+            search: 'required',
+            text: 'A'
+          },
+          B: {
+            category: 'Test Category',
+            enabled: true,
+            key: 'B',
+            search: 'required',
+            text: 'B'
+          }
+        };
+        demo.list3 = [];
+        demo.object3 = {
+          A: {
+            category: 'Test Category',
+            enabled: true,
+            key: 'A',
+            search: 'required',
+            text: 'A'
+          },
+          B: {
+            category: 'Test Category',
+            enabled: false,
+            key: 'B',
+            search: 'required',
+            text: 'B'
+          },
+        };
+        demo.list4 = ['A', 'B'];
+        demo.object4 = {};
 
-        demo.stringifySearchParam = function() {
-          return JSON.stringify(demo.searchParamSubset);
+        // Deep copy lists and objects.
+        demo.input1 = JSON.parse(JSON.stringify(demo.list1));
+        demo.input2 = JSON.parse(JSON.stringify(demo.object2));
+        demo.input3 = JSON.parse(JSON.stringify(demo.object3));
+        demo.input4 = JSON.parse(JSON.stringify(demo.list4));
+
+        demo.textFunction = function(id) {
+          return 'ID=' + id;
+        };
+
+        demo.stringify = function(argument) {
+          return JSON.stringify(argument);
         };
       })(document);
     </script>
-  </body>
+
+    <template is="dom-bind">
+      <p><strong>========== DEMO 1 ==========</strong></p>
+      <p>Category: <strong>"Test Category"</strong></p>
+      <p>Input List: <strong>[[stringify(list1)]]</strong></p>
+      <p>Input Object: <strong>[[stringify(object1, object1.*)]]</strong></p>
+      <p>Output List: <strong>[[stringify(input1)]]</strong></p>
+      <p>Output Object: <strong>[[stringify(output1, output1.*)]]</strong></p>
+
+      <terms-transformer
+        category="Test Category"
+        list="{{input1}}"
+        object="{{output1}}">
+      </terms-transformer>
+
+      <p><strong>========== DEMO 2 ==========</strong></p>
+      <p>Input List: <strong>[[stringify(list2)]]</strong></p>
+      <p>Input Object: <strong>[[stringify(object2, object2.*)]]</strong></p>
+      <p>Output List: <strong>[[stringify(output2)]]</strong></p>
+      <p>Output Object: <strong>[[stringify(input2, input2.*)]]</strong></p>
+
+      <terms-transformer
+        list="{{output2}}"
+        object="{{input2}}">
+      </terms-transformer>
+
+      <p><strong>========== DEMO 3 ==========</strong></p>
+      <p>Input List: <strong>[[stringify(list3)]]</strong></p>
+      <p>Input Object: <strong>[[stringify(object3, object3.*)]]</strong></p>
+      <p>Output List: <strong>[[stringify(output3)]]</strong></p>
+      <p>Output Object: <strong>[[stringify(input3, input3.*)]]</strong></p>
+
+      <terms-transformer
+        list="{{output3}}"
+        object="{{input3}}">
+      </terms-transformer>
+
+      <p><strong>========== DEMO 4 ==========</strong></p>
+      <p>Category: <strong>"Test Category"</strong></p>
+      <p>Text Function: <strong>function(id) { return "ID=" + id; }</strong></p>
+      <p>Input List: <strong>[[stringify(list4)]]</strong></p>
+      <p>Input Object: <strong>[[stringify(object4, object4.*)]]</strong></p>
+      <p>Output List: <strong>[[stringify(input4)]]</strong></p>
+      <p>Output Object: <strong>[[stringify(output4, output4.*)]]</strong></p>
+
+      <terms-transformer
+        category="Test Category"
+        text-function="[[textFunction]]"
+        list="{{input4}}"
+        object="{{output4}}">
+      </terms-transformer>
+    </template>
+  </dom-bind>
+</body>
 </html>
