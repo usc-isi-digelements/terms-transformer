@@ -50,7 +50,7 @@ limitations under the License.
           assert.equal(element.textProperty, 'text');
           assert.isUndefined(element.objectProperty);
           assert.isFunction(element.objectStructureFunction);
-          assert.equal(element.searchDefaultValue, 'required');
+          assert.equal(element.searchDefaultValue, 'union');
         });
 
         test('objectStructureFunction returns correct object based on inputs', function() {
@@ -110,14 +110,14 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'union',
               text: 'key1'
             },
             key2: {
               category: 'Category',
               enabled: true,
               key: 'key2',
-              search: 'required',
+              search: 'union',
               text: 'key2'
             }
           });
@@ -155,14 +155,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               },
               key2: {
                 category: 'Category',
                 enabled: true,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               }
             });
@@ -171,7 +171,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               });
             }
@@ -180,7 +180,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               });
               done();
@@ -256,14 +256,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: false,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               },
               key2: {
                 category: 'Category',
                 enabled: false,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               }
             });
@@ -272,7 +272,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: false,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               });
             }
@@ -281,7 +281,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: false,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               });
               done();
@@ -306,14 +306,14 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'union',
               text: 'text for key1'
             },
             key2: {
               category: 'Category',
               enabled: false,
               key: 'key2',
-              search: 'required',
+              search: 'union',
               text: 'text for key2'
             }
           };
@@ -358,14 +358,14 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'union',
               text: 'text for key1'
             },
             key2: {
               category: 'Category',
               enabled: true,
               key: 'key2',
-              search: 'required',
+              search: 'union',
               text: 'text for key2'
             }
           };
@@ -382,14 +382,14 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'union',
               text: 'text for key1'
             },
             key2: {
               category: 'Category',
               enabled: false,
               key: 'key2',
-              search: 'required',
+              search: 'union',
               text: 'text for key2'
             }
           };
@@ -407,7 +407,7 @@ limitations under the License.
             category: 'Category',
             enabled: true,
             key: 'key1',
-            search: 'required',
+            search: 'union',
             text: 'text for key1'
           });
         });
@@ -451,14 +451,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               },
               key2: {
                 category: 'Category',
                 enabled: true,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               }
             }
@@ -475,14 +475,14 @@ limitations under the License.
                   category: 'Category',
                   enabled: true,
                   key: 'key1',
-                  search: 'required',
+                  search: 'union',
                   text: 'key1'
                 },
                 key2: {
                   category: 'Category',
                   enabled: true,
                   key: 'key2',
-                  search: 'required',
+                  search: 'union',
                   text: 'key2'
                 }
               }
@@ -492,7 +492,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               });
             }
@@ -501,7 +501,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               });
               done();
@@ -523,14 +523,14 @@ limitations under the License.
                   testCategory: 'Category',
                   testEnabled: true,
                   testId: 'key1',
-                  testSearch: 'required',
+                  testSearch: 'union',
                   testText: 'key1'
                 },
                 key2: {
                   testCategory: 'Category',
                   testEnabled: true,
                   testId: 'key2',
-                  testSearch: 'required',
+                  testSearch: 'union',
                   testText: 'key2'
                 }
               }
@@ -540,7 +540,7 @@ limitations under the License.
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key1',
-                testSearch: 'required',
+                testSearch: 'union',
                 testText: 'key1'
               });
             }
@@ -549,7 +549,7 @@ limitations under the License.
                 testCategory: 'Category',
                 testEnabled: true,
                 testId: 'key2',
-                testSearch: 'required',
+                testSearch: 'union',
                 testText: 'key2'
               });
               done();
@@ -579,14 +579,14 @@ limitations under the License.
                   category: 'Category',
                   enabled: false,
                   key: 'key1',
-                  search: 'required',
+                  search: 'union',
                   text: 'key1'
                 },
                 key2: {
                   category: 'Category',
                   enabled: false,
                   key: 'key2',
-                  search: 'required',
+                  search: 'union',
                   text: 'key2'
                 }
               }
@@ -596,7 +596,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: false,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'key1'
               });
             }
@@ -605,7 +605,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: false,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'key2'
               });
               done();
@@ -631,14 +631,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'text for key1'
               },
               key2: {
                 category: 'Category',
                 enabled: false,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'text for key2'
               }
             }
@@ -683,14 +683,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'text for key1'
               },
               key2: {
                 category: 'Category',
                 enabled: true,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'text for key2'
               }
             }
@@ -709,14 +709,14 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key1',
-                search: 'required',
+                search: 'union',
                 text: 'text for key1'
               },
               key2: {
                 category: 'Category',
                 enabled: false,
                 key: 'key2',
-                search: 'required',
+                search: 'union',
                 text: 'text for key2'
               }
             }
@@ -736,7 +736,7 @@ limitations under the License.
               category: 'Category',
               enabled: true,
               key: 'key1',
-              search: 'required',
+              search: 'union',
               text: 'text for key1'
             }
           });
@@ -754,7 +754,7 @@ limitations under the License.
             category: 'Category',
             enabled: true,
             key: 'key1',
-            search: 'required',
+            search: 'union',
             text: 'text for key1'
           });
         });
@@ -799,7 +799,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key',
-                search: 'required',
+                search: 'union',
                 text: 'text'
               }
             }
@@ -814,7 +814,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key',
-                search: 'required',
+                search: 'union',
                 text: 'text'
               }
             }
@@ -837,7 +837,7 @@ limitations under the License.
                 category: 'Category',
                 enabled: true,
                 key: 'key',
-                search: 'required',
+                search: 'union',
                 text: 'key'
               }
             }
