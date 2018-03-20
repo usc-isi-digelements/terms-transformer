@@ -192,6 +192,52 @@ limitations under the License.
           element.list = ['key1', 'key2'];
         });
 
+        test('_updateObject() works as expected with numbers', function(done) {
+          var call = 0;
+          element.onObjectChange = function(data) {
+            call++;
+            assert.deepEqual(element.object, {
+              1234: {
+                category: 'Category',
+                enabled: true,
+                key: 1234,
+                search: 'union',
+                text: 1234
+              },
+              5678: {
+                category: 'Category',
+                enabled: true,
+                key: 5678,
+                search: 'union',
+                text: 5678
+              }
+            });
+            if(call === 1) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 1234,
+                search: 'union',
+                text: 1234
+              });
+            }
+            if(call === 2) {
+              assert.deepEqual(data.detail.value, {
+                category: 'Category',
+                enabled: true,
+                key: 5678,
+                search: 'union',
+                text: 5678
+              });
+              done();
+            }
+          };
+
+          element.listen(element, 'object-changed', 'onObjectChange');
+
+          element.list = [1234, 5678];
+        });
+
         test('_updateObject() works as expected with custom property names specified', function(done) {
           var call = 0;
           element.onObjectChange = function(data) {
@@ -315,6 +361,32 @@ limitations under the License.
               key: 'key2',
               search: 'union',
               text: 'text for key2'
+            }
+          };
+        });
+
+        test('_updateList() works as expected with numbers', function(done) {
+          element.onListChange = function() {
+            assert.deepEqual(element.list, [1234]);
+            done();
+          };
+
+          element.listen(element, 'list-changed', 'onListChange');
+
+          element.object = {
+            1234: {
+              category: 'Category',
+              enabled: true,
+              key: 1234,
+              search: 'union',
+              text: '1234'
+            },
+            5678: {
+              category: 'Category',
+              enabled: false,
+              key: 5678,
+              search: 'union',
+              text: '5678'
             }
           };
         });

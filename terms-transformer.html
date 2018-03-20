@@ -310,10 +310,12 @@ var selectedObject = {
 
         _.keys(object).forEach(function(id) {
           var oldEnabled = object[id][self.enabledProperty];
-          var newEnabled = (self.list.indexOf(id) >= 0);
+          // Use the ID at idProperty for the list and new object rather than the object key because the key is stringified.
+          var trueId = object[id][self.idProperty];
+          var newEnabled = (self.list.indexOf(trueId) >= 0);
           if(!!oldEnabled !== !!newEnabled) {
             // Must recreate the object here rather than just setting the enabled property in order for notifyPath to work correctly.
-            object[id] = self.objectStructureFunction(newEnabled, object[id][self.idProperty], object[id][self.searchProperty], object[id][self.textProperty]);
+            object[id] = self.objectStructureFunction(newEnabled, trueId, object[id][self.searchProperty], object[id][self.textProperty]);
             notifyIds[id] = true;
           }
         });
@@ -364,9 +366,11 @@ var selectedObject = {
         }
 
         _.keys(object).forEach(function(id) {
-          var index = self.list ? self.list.indexOf(id) : -1;
+          // Use the ID at idProperty for the list rather than the object key because the key is stringified.
+          var trueId = object[id][self.idProperty];
+          var index = self.list ? self.list.indexOf(trueId) : -1;
           if(object[id][self.enabledProperty] && index < 0) {
-            list.push(id);
+            list.push(trueId);
           }
         });
 
