@@ -4,7 +4,7 @@ The following software licenses apply to the listed third-party dependencies:
 
 ### BSD 3-Clause
 
-[License](https://github.com/DigElements/terms-transformer/blob/master/THIRD-PARTY-LICENSES/BSD-3-CLAUSE)
+[License](https://github.com/usc-isi-digelements/terms-transformer/blob/master/THIRD-PARTY-LICENSES/BSD-3-CLAUSE)
 
 #### polymer
 - Copyright (c) 2014 The Polymer Authors
@@ -16,7 +16,7 @@ The following software licenses apply to the listed third-party dependencies:
 
 ### MIT
 
-[License](https://github.com/DigElements/terms-transformer/blob/master/THIRD-PARTY-LICENSES/MIT)
+[License](https://github.com/usc-isi-digelements/terms-transformer/blob/master/THIRD-PARTY-LICENSES/MIT)
 
 #### lodash
 - Copyright JS Foundation and other contributors <https://js.foundation/>
